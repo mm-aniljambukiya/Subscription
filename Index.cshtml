@@ -1,0 +1,177 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="~/assets/images/favicon.ico" />
+    <title>@ViewData["Title"] - Finerr Payment</title>
+    <link href="~/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/css/material-icons.min.css" rel="stylesheet" />
+    <link href="~/assets/css/app.min.css" rel="stylesheet" />
+    <link href="~/assets/css/app.min.css" rel="stylesheet" />
+</head>
+<body class="hold-transition">
+    <div class="auth-page-wrapper pt-5">
+        <!--auth page bg-->
+        <div class="auth-one-bg-position auth-one-bg" id="auth-particles">
+            <div class="bg-overlay"></div>
+            <div class="shape">
+                <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1440 120">
+                    <path d="M 0,36 C 144,53.6 432,123.2 720,124 C 1008,124.8 1296,56.8 1440,40L1440 140L0 140z"></path>
+                </svg>
+            </div>
+        </div>
+        <!--auth page content-->
+        <div class="auth-page-content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="text-center mt-sm-5 mb-4 text-white-50">
+                            <div>
+                                <a href="/Account/Login" class="d-inline-block auth-logo">
+                                    <img src="~/assets/images/finner-dark.png" height="50" />
+                                </a>
+                            </div>
+                            <!--<p class="mt-3 fs-15 fw-medium">Premium Admin & Dashboard Template</p>-->
+                        </div>
+                    </div>
+                </div>
+                <!--end row-->
+                <div class="row justify-content-center">
+                    <div class="col-md-8 col-lg-6 col-xl-12">
+                        <div class="card mt-4">
+                            <div class="card-body p-4">
+                                <div class="p-2 mt-2">
+                                    <form asp-controller="OnboardindCustomer" asp-action="Subscribe" method="post" id="payment-form" style="width:100%;">
+                                        <div class="row">
+
+                                            <div class="live-preview">
+                                                <div class="row gy-4">
+                                                    <div class="col-xxl-12 col-md-12">
+                                                        <div>
+                                                            <label for="basiInput" class="form-label">Credit or Debit Card Details</label>
+                                                            <div id="card-element" class="mt-2" style="width:100%;">
+                                                            </div>
+                                                            <div id="card-errors" role="alert" class="text-danger mt-1  "></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12">
+                                                    <div class="hstack gap-2 justify-content-end">
+                                                        <button class="btn btn-success">Make Subscription</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </form>
+                                    <script src="https://js.stripe.com/v3/"></script>
+                                    <script>
+                                        // Create a Stripe client and use the Viewbag to get your Stripe API key.
+                                        var stripe = Stripe('stripeKey');
+
+                                        // Create an instance of Elements.
+                                        var elements = stripe.elements();
+
+                                        // Custom styling can be passed to options when creating an Element.
+                                        // (Note that this demo uses a wider set of styles than the guide below.)
+                                        var style = {
+                                        base: {
+                                            color: '#32325d',
+                                            fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                                            fontSmoothing: 'antialiased',
+                                            fontSize: '16px',
+                                            '::placeholder': {
+                                            color: '#aab7c4'
+                                            }
+                                        },
+                                        invalid: {
+                                            color: '#fa755a',
+                                            iconColor: '#fa755a'
+                                        }
+                                        };
+
+                                        // Create an instance of the card Element.
+                                        var card = elements.create('card', {style: style});
+
+                                        // Add an instance of the card Element into the `card-element` <div>.
+                                        card.mount('#card-element');
+
+                                        // Handle real-time validation errors from the card Element.
+                                        card.addEventListener('change', function(event) {
+                                        var displayError = document.getElementById('card-errors');
+                                        if (event.error) {
+                                            displayError.textContent = event.error.message;
+                                        } else {
+                                            displayError.textContent = '';
+                                        }
+                                        });
+
+                                        // Handle form submission.
+                                        var form = document.getElementById('payment-form');
+                                        form.addEventListener('submit', function(event) {
+                                        event.preventDefault();
+
+                                        stripe.createToken(card).then(function(result) {
+                                            if (result.error) {
+                                            // Inform the user if there was an error.
+                                            var errorElement = document.getElementById('card-errors');
+                                            errorElement.textContent = result.error.message;
+                                            } else {
+                                            // Send the token to your server.
+                                            stripeTokenHandler(result.token);
+                                            }
+                                        });
+                                        });
+
+                                        // Submit the form with the token ID.
+                                        function stripeTokenHandler(token) {
+                                            debugger;
+                                            // Insert the token ID into the form so it gets submitted to the server
+                                            var form = document.getElementById('payment-form');
+                                            var hiddenInput = document.createElement('input');
+                                            hiddenInput.setAttribute('type', 'hidden');
+                                            hiddenInput.setAttribute('name', 'stripeToken');
+                                            hiddenInput.setAttribute('value', token.id);
+                                            hiddenInput.setAttribute('card_id', token.card.id);
+                                            hiddenInput.setAttribute('last4', token.card.last4);
+                                            form.appendChild(hiddenInput);
+                                            // Submit the form
+                                            form.submit();
+                                        }
+                                    </script>
+
+
+                                </div>
+                            </div>
+                            <!--end card body-->
+                        </div>
+                        <!--end card-->
+                    </div>
+                </div>
+                <!--end row-->
+            </div>
+            <!--end container-->
+        </div>
+        <!--end auth page content-->
+        <!--footer-->
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="text-center">
+                            <p class="mb-0 text-muted">
+                                &copy;
+                                <script>document.write(new Date().getFullYear())</script> Designed & Developed by Finerr.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!--end Footer-->
+    </div>
+</body>
+</html>
+
